@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "128132986177",
+    "firebase_url": "https://tn-election-default-rtdb.firebaseio.com",
+    "project_id": "tn-election",
+    "storage_bucket": "tn-election.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128132986177:android:86549ff25342358b685dc0",
+        "android_client_info": {
+          "package_name": "com.oruhelp.tnelection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "128132986177-h3qpca3ghchdrbqsajvqh5if7cge7t7r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBly_F6Z_VGc7p-x2C48kNsc5ziC22o0I8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "128132986177-h3qpca3ghchdrbqsajvqh5if7cge7t7r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
