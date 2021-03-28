@@ -1,5 +1,4 @@
 const initialState = {
-  blink: true,
 };
 
 const appDataReducer = (state = initialState, action) => {
@@ -10,7 +9,12 @@ const appDataReducer = (state = initialState, action) => {
         blink: !state.blink,
       };
     }
-
+    case 'INCREASE_OPEN_COUNT': {
+      if (state.openCount) {
+        return {...state, openCount: state.openCount + 1};
+      }
+      return {...state, openCount: 1};
+    }
     default: {
       return state;
     }

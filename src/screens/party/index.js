@@ -1,21 +1,30 @@
 import React from 'react';
-import {Text, Image, View, TouchableOpacity} from 'react-native';
-import {Headline} from 'react-native-paper';
+import {Text, Image, View, Alert } from 'react-native';
+import {Headline, Button, Snackbar} from 'react-native-paper';
 import {StyleSheet, Dimensions} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import About from './About';
 import Comments from '../../components/Comments';
 import Candidates from './Candidates';
+import {getCountAsText} from '../../services/Utils';
+import {likeParty, dislikeParty} from '../../services/database';
+import {
+  partyLikedLocal,
+  partyDislikedLocal,
+} from '../../redux/actions/masterDataActions';
 
 const Party = ({route, navigation}) => {
   const {id} = route?.params;
+  const dispatch = useDispatch();
   const masterData = useSelector((state) => state.masterData);
+  const authUser = useSelector((state) => state.authUser);
   const details = masterData.parties.filter((_party) => _party.id === id)[0];
 
   const initialLayout = {width: Dimensions.get('window').width};
   const [index, setIndex] = React.useState(0);
+  const [loadingLike, setLoadingLike] = React.useState(false);
   const [routes] = React.useState([
     {key: 'candidates', icon: 'account-group'},
     {key: 'about', icon: 'information-outline'},
@@ -34,11 +43,56 @@ const Party = ({route, navigation}) => {
     }
   };
 
+  const m_likeParty = () => {
+    if(!authUser || !authUser.user){
+      Alert.alert(
+        "Login",
+        "Please login to proceed",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel"
+          },
+          { text: "OK", onPress: () => navigation.navigate('Login') }
+        ]
+      );
+    }
+    if (loadingLike) return;
+    setLoadingLike(true);
+    likeParty(id)
+      .then((res) => {
+        dispatch(partyLikedLocal(id));
+        setLoadingLike(false);
+      })
+      .catch((err) => {
+        setLoadingLike(false);
+      });
+  };
+
+  const m_dislikeParty = () => {
+    if (loadingLike) return;
+    setLoadingLike(true);
+    dislikeParty(id)
+      .then((res) => {
+        dispatch(partyDislikedLocal(id));
+        setLoadingLike(false);
+      })
+      .catch((err) => {
+        setLoadingLike(false);
+      });
+  };
+
   return (
     <View style={{flex: 1}}>
       <View style={{backgroundColor: '#3f51b5', alignItems: 'center'}}>
-      <Icon
-          style={{alignSelf: 'flex-start', marginTop: 20, marginLeft: 20, position:'absolute'}}
+        <Icon
+          style={{
+            alignSelf: 'flex-start',
+            marginTop: 20,
+            marginLeft: 20,
+            position: 'absolute',
+          }}
           name={'arrow-left'}
           size={25}
           color={'#fff'}
@@ -61,9 +115,41 @@ const Party = ({route, navigation}) => {
           }}
         />
 
-        <Headline style={{margin: 10, color: '#fff', textAlign:'center'}}>
+        <Headline style={{margin: 10, color: '#fff', textAlign: 'center'}}>
           {details.name}
         </Headline>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+          }}>
+          {details.liked ? (
+            <Button
+              icon="thumb-up"
+              mode="outline"
+              compact
+              style={{backgroundColor: 'white', margin: 10}}
+              color="#3f51b5"
+              onPress={() => m_dislikeParty()}>
+              {loadingLike ? 'Loading...' : 'Liked'}
+            </Button>
+          ) : (
+            <Button
+              icon="thumb-up-outline"
+              mode="outline"
+              compact
+              style={{margin: 10, borderColor: 'white', borderWidth: 1}}
+              color="white"
+              onPress={() => m_likeParty()}>
+              {loadingLike ? 'Loading...' : 'Like'}
+            </Button>
+          )}
+
+          <Text style={{color: 'white'}}>
+            {getCountAsText(details.likes)} Likes
+          </Text>
+        </View>
       </View>
       <TabView
         navigationState={{index, routes}}

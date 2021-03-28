@@ -52,6 +52,8 @@ export const addChatSupportMessage = (uid, data) => {
 export const deleteChat = (uid) => {
   return database().ref(`/appo/support/chat/${uid}`).remove();
 };
+
+// below
 export const syncMasterData = (onChange) => {
   return database()
     .ref(`/app/masterData`)
@@ -126,4 +128,40 @@ export const unsubscribeAnnouncements = () => {
 
 export const unsubscribeHotNews = () => {
   return database().ref('/app/updates/hotnews').off('value');
+}
+
+export const likeParty = (partyId) => {
+  return database()
+  .ref(`/app/masterData/parties/${partyId}/likes`)
+  .set(database.ServerValue.increment(1))
+}
+
+export const dislikeParty = (partyId) => {
+  return database()
+  .ref(`/app/masterData/parties/${partyId}/likes`)
+  .set(database.ServerValue.increment(-1))
+}
+
+export const likeCandidate = (candidateId) => {
+  return database()
+  .ref(`/app/masterData/candidates/${candidateId}/likes`)
+  .set(database.ServerValue.increment(1))
+}
+
+export const dislikeCandidate = (candidateId) => {
+  return database()
+  .ref(`/app/masterData/candidates/${candidateId}/likes`)
+  .set(database.ServerValue.increment(-1))
+}
+
+export const likeConstituency = (constituencyId) => {
+  return database()
+  .ref(`/app/masterData/constituencies/${constituencyId}/likes`)
+  .set(database.ServerValue.increment(1))
+}
+
+export const dislikeConstituency = (constituencyId) => {
+  return database()
+  .ref(`/app/masterData/constituencies/${constituencyId}/likes`)
+  .set(database.ServerValue.increment(-1))
 }

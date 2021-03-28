@@ -7,6 +7,7 @@ import {Provider, useDispatch, useSelector} from 'react-redux';
 import {PersistGate} from 'redux-persist/es/integration/react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import auth from '@react-native-firebase/auth';
 import Home from './screens/home';
 import HotNews from './screens/hotnews';
 import Announcements from './screens/announcements';
@@ -16,8 +17,9 @@ import Candidates from './screens/home/Candidates';
 import Dashboard from './screens/dashboard';
 import {store, persistor} from './redux/store/store';
 import {syncMasterData} from './services/database';
-import {override} from './redux/actions/masterDataActions';
+import {override, increaseOpenCount} from './redux/actions/masterDataActions';
 
+import Login from './screens/Login';
 import Alliance from './screens/home/Alliance';
 import Party from './screens/party';
 import Candidate from './screens/candidate';
@@ -25,12 +27,20 @@ import Constituency from './screens/constituency';
 import Search from './screens/search';
 import WebViewIn from './screens/hotnews/WebViewIn';
 
+import {login} from './redux/actions/authActions';
+
 import {release as releaseVersion} from '../package.json';
 
 import admob, {MaxAdContentRating} from '@react-native-firebase/admob';
-import {BannerAd, BannerAdSize, TestIds, InterstitialAd} from '@react-native-firebase/admob';
+import {
+  BannerAd,
+  BannerAdSize,
+  TestIds,
+  InterstitialAd,
+} from '@react-native-firebase/admob';
 
 import messaging from '@react-native-firebase/messaging';
+import {GoogleSignin} from '@react-native-community/google-signin';
 
 let adUnitId = __DEV__
   ? TestIds.BANNER
@@ -41,7 +51,37 @@ const Stack = createStackNavigator();
 
 const DataLayer = () => {
   const dispatch = useDispatch();
+  const {openCount} = useSelector((state) => state.appData);
   const overrideFn = (_masterData) => dispatch(override(_masterData));
+
+  // Handle user state changes
+  function onAuthStateChanged(user) {
+    dispatch(login(user));
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    dispatch(increaseOpenCount());
+
+    if (openCount && (openCount == 10 || openCount == 25 || openCount == 50 || openCount == 100)) {
+      Alert.alert(
+        'Rating',
+        'Please help us improve this app, by rating us in the Play Store',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () =>
+              Linking.openURL('market://details?id=com.oruhelp.tnelection'),
+          },
+        ],
+      );
+    }
+  }, []);
 
   React.useEffect(() => {
     syncMasterData((_masterData) => {
@@ -75,6 +115,7 @@ const DataLayer = () => {
       <Drawer.Screen name="Parties" component={Parties} />
       <Drawer.Screen name="Constituencies" component={Constituencies} />
       <Drawer.Screen name="Candidates" component={Candidates} />
+      <Drawer.Screen name="Login" component={Login} />
     </Drawer.Navigator>
   );
 };
@@ -114,11 +155,17 @@ export default function App(props) {
   }, []);
 
   useEffect(() => {
-    
-InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL);
+    //InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL);
     messaging()
       .subscribeToTopic('general')
       .then(() => console.log('Subscribed to topic - general'));
+  }, []);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId:
+        '128132986177-h3qpca3ghchdrbqsajvqh5if7cge7t7r.apps.googleusercontent.com',
+    });
   }, []);
 
   return (

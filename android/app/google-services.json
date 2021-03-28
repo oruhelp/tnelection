@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "128132986177-nf4radfrlj06sgmg4fnimqj75m20uhil.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.oruhelp.tnelection",
+            "certificate_hash": "e4a021075262d0c88459510f7ee8d09611cc40a2"
+          }
+        },
+        {
           "client_id": "128132986177-h3qpca3ghchdrbqsajvqh5if7cge7t7r.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -33,7 +41,8 @@
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-1415621373127858~1153855259"
     }
   ],
   "configuration_version": "1"
