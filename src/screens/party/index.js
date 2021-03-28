@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Image, View, Alert } from 'react-native';
+import {Text, Image, View, Alert, ScrollView} from 'react-native';
 import {Headline, Button, Snackbar} from 'react-native-paper';
 import {StyleSheet, Dimensions} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
@@ -44,19 +44,15 @@ const Party = ({route, navigation}) => {
   };
 
   const m_likeParty = () => {
-    if(!authUser || !authUser.user){
-      Alert.alert(
-        "Login",
-        "Please login to proceed",
-        [
-          {
-            text: "Cancel",
-            onPress: () => console.log("Cancel Pressed"),
-            style: "cancel"
-          },
-          { text: "OK", onPress: () => navigation.navigate('Login') }
-        ]
-      );
+    if (!authUser || !authUser.user) {
+      Alert.alert('Login', 'Please login to proceed', [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => navigation.navigate('Login')},
+      ]);
     }
     if (loadingLike) return;
     setLoadingLike(true);
@@ -84,7 +80,7 @@ const Party = ({route, navigation}) => {
   };
 
   return (
-    <View style={{flex: 1}}>
+    <ScrollView style={{flex: 1}}>
       <View style={{backgroundColor: '#3f51b5', alignItems: 'center'}}>
         <Icon
           style={{
@@ -122,7 +118,8 @@ const Party = ({route, navigation}) => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'space-evenly',
+            width: '100%'
           }}>
           {details.liked ? (
             <Button
@@ -167,7 +164,7 @@ const Party = ({route, navigation}) => {
         )}
         initialLayout={initialLayout}
       />
-    </View>
+    </ScrollView>
   );
 };
 export default Party;

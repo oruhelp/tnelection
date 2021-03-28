@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, Image, View, Alert} from 'react-native';
+import {Text, Image, View, Alert, ScrollView} from 'react-native';
 import {Headline, Button} from 'react-native-paper';
 import {StyleSheet, Dimensions} from 'react-native';
 import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
@@ -81,7 +81,7 @@ const Candidate = ({route, navigation}) => {
   };
 
   return (
-    <View style={{flex: 1}}>
+    <ScrollView style={{flex: 1}}>
       <View style={{backgroundColor: '#3f51b5', alignItems: 'center'}}>
         <Icon
           style={{
@@ -119,7 +119,8 @@ const Candidate = ({route, navigation}) => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'space-evenly',
+            width: '100%'
           }}>
           {details.liked ? (
             <Button
@@ -164,7 +165,7 @@ const Candidate = ({route, navigation}) => {
         )}
         initialLayout={initialLayout}
       />
-    </View>
+    </ScrollView>
   );
 };
 export default Candidate;
