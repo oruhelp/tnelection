@@ -2677,46 +2677,6 @@ const masterDataReducer = (state = initialState, action) => {
       return merge(initialState, action.payload, options);
       return {...state, ...action.payload};
     }
-    case 'PARTY_LIKED': {
-      const partyId = action.payload;
-      state.parties.filter((party) => party.id === partyId)[0].liked = true;
-      return {...state};
-      return state;
-    }
-    case 'PARTY_DISLIKED': {
-      const partyId = action.payload;
-      state.parties.filter((party) => party.id === partyId)[0].liked = false;
-      return {...state};
-    }
-    case 'CANDIDATE_LIKED': {
-      const candidateId = action.payload;
-      state.candidates.filter(
-        (candidate) => candidate.id === candidateId,
-      )[0].liked = true;
-      return {...state};
-    }
-    case 'CANDIDATE_DISLIKED': {
-      const candidateId = action.payload;
-      state.candidates.filter(
-        (candidate) => candidate.id === candidateId,
-      )[0].liked = false;
-      return {...state};
-    }
-    case 'CONSTITUENCY_LIKED': {
-      const constituencyId = action.payload;
-      state.constituencies.filter(
-        (constituency) => constituency.id === constituencyId,
-      )[0].liked = true;
-      return {...state};
-      return state;
-    }
-    case 'CONSTITUENCY_DISLIKED': {
-      const constituencyId = action.payload;
-      state.constituencies.filter(
-        (constituency) => constituency.id === constituencyId,
-      )[0].liked = false;
-      return {...state};
-    }
     default: {
       return state;
     }

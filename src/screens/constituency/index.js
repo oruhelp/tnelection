@@ -6,7 +6,7 @@ import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {useSelector, useDispatch} from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import About from './About';
-import Comments from '../../components/Comments';
+import Comments from '../party/Comments';
 import Candidates from './Candidates';
 
 import {getCountAsText} from '../../services/Utils';
@@ -20,6 +20,7 @@ const Constituency = ({route, navigation}) => {
   const {id} = route?.params;
   const dispatch = useDispatch();
   const masterData = useSelector((state) => state.masterData);
+  const appData = useSelector((state) => state.appData);
   const authUser = useSelector((state) => state.authUser);
   const details = masterData.constituencies.filter(
     (constituency) => constituency.id === id,
@@ -29,6 +30,7 @@ const Constituency = ({route, navigation}) => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {key: 'candidates', icon: 'account-group'},
+    {key: 'comments', icon: 'comment'},
     {key: 'about', icon: 'information-outline'},
   ]);
 
@@ -39,7 +41,7 @@ const Constituency = ({route, navigation}) => {
       case 'candidates':
         return <Candidates {...details} />;
       case 'comments':
-        return <Comments />;
+        return <Comments id={id} />;
       default:
         return null;
     }
@@ -59,12 +61,14 @@ const Constituency = ({route, navigation}) => {
     }
     if (loadingLike) return;
     setLoadingLike(true);
+    dispatch(constituencyLikedLocal(id));
     likeConstituency(id)
       .then((res) => {
         dispatch(constituencyLikedLocal(id));
         setLoadingLike(false);
       })
       .catch((err) => {
+        dispatch(constituencyDislikedLocal(id));
         setLoadingLike(false);
       });
   };
@@ -72,12 +76,14 @@ const Constituency = ({route, navigation}) => {
   const m_dislikeConstituency = () => {
     if (loadingLike) return;
     setLoadingLike(true);
+    dispatch(constituencyDislikedLocal(id));
     dislikeConstituency(id)
       .then((res) => {
         dispatch(constituencyDislikedLocal(id));
         setLoadingLike(false);
       })
       .catch((err) => {
+        dispatch(constituencyLikedLocal(id));
         setLoadingLike(false);
       });
   };
@@ -122,17 +128,20 @@ const Constituency = ({route, navigation}) => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-evenly',
-            width: '100%'
+            width: '100%',
           }}>
-          {details.liked ? (
+          {appData &&
+          appData.constituencies &&
+          appData.constituencies[id] &&
+          appData.constituencies[id].liked ? (
             <Button
               icon="thumb-up"
               mode="outline"
               compact
-              style={{backgroundColor: 'white', margin: 10}}
+              style={{backgroundColor: 'white', margin: 10,  borderWidth: 1}}
               color="#3f51b5"
               onPress={() => m_dislikeConstituency()}>
-              {loadingLike ? 'Loading...' : 'Liked'}
+              {getCountAsText(details.likes)}
             </Button>
           ) : (
             <Button
@@ -142,13 +151,9 @@ const Constituency = ({route, navigation}) => {
               style={{margin: 10, borderColor: 'white', borderWidth: 1}}
               color="white"
               onPress={() => m_likeConstituency()}>
-              {loadingLike ? 'Loading...' : 'Like'}
+              {getCountAsText(details.likes)}
             </Button>
           )}
-
-          <Text style={{color: 'white'}}>
-            {getCountAsText(details.likes)} Likes
-          </Text>
         </View>
       </View>
       <TabView

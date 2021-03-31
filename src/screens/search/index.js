@@ -30,20 +30,29 @@ const Search = ({route}) => {
     setSearchQuery(query);
 
     setFilteredCandidates(
-      masterData.candidates.filter((_candidate) =>
-        _candidate.name.toLowerCase().includes(query.toLowerCase()),
-      ),
+      masterData.candidates.filter((_candidate) => {
+        if (_candidate.name && query)
+          return _candidate.name.toLowerCase().includes(query.toLowerCase());
+        else return false;
+      }),
     );
     setFilteredConstituencies(
       masterData.constituencies.filter(
         (_constituency) =>
-          _constituency.name.toLowerCase().includes(query.toLowerCase()) ||
-          _constituency.dt.toLowerCase().includes(query.toLowerCase()),
+          (_constituency.name &&
+            query &&
+            _constituency.name.toLowerCase().includes(query.toLowerCase())) ||
+          (_constituency.dt &&
+            query &&
+            _constituency.dt.toLowerCase().includes(query.toLowerCase())),
       ),
     );
     setFilteredParties(
-      masterData.parties.filter((_party) =>
-        _party.name.toLowerCase().includes(query.toLowerCase()),
+      masterData.parties.filter(
+        (_party) =>
+          _party.name &&
+          query &&
+          _party.name.toLowerCase().includes(query.toLowerCase()),
       ),
     );
   };
@@ -62,6 +71,8 @@ const Search = ({route}) => {
         (_party) => _party.id === partyId,
       )[0];
       if (party) subtitle = subtitle + '\n' + party.name;
+    } else {
+      subtitle = subtitle + '\nIndependent';
     }
     return subtitle;
   };

@@ -6,7 +6,7 @@ import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {useSelector, useDispatch} from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import About from './About';
-import Comments from '../../components/Comments';
+import Comments from './Comments';
 import Candidates from './Candidates';
 import {getCountAsText} from '../../services/Utils';
 import {likeParty, dislikeParty} from '../../services/database';
@@ -19,6 +19,7 @@ const Party = ({route, navigation}) => {
   const {id} = route?.params;
   const dispatch = useDispatch();
   const masterData = useSelector((state) => state.masterData);
+  const appData = useSelector((state) => state.appData);
   const authUser = useSelector((state) => state.authUser);
   const details = masterData.parties.filter((_party) => _party.id === id)[0];
 
@@ -27,6 +28,7 @@ const Party = ({route, navigation}) => {
   const [loadingLike, setLoadingLike] = React.useState(false);
   const [routes] = React.useState([
     {key: 'candidates', icon: 'account-group'},
+    {key: 'comments', icon: 'comment'},
     {key: 'about', icon: 'information-outline'},
   ]);
 
@@ -37,7 +39,7 @@ const Party = ({route, navigation}) => {
       case 'candidates':
         return <Candidates {...details} />;
       case 'comments':
-        return <Comments />;
+        return <Comments id={id} />;
       default:
         return null;
     }
@@ -53,15 +55,18 @@ const Party = ({route, navigation}) => {
         },
         {text: 'OK', onPress: () => navigation.navigate('Login')},
       ]);
+      return;
     }
     if (loadingLike) return;
     setLoadingLike(true);
+    dispatch(partyLikedLocal(id));
     likeParty(id)
       .then((res) => {
         dispatch(partyLikedLocal(id));
         setLoadingLike(false);
       })
       .catch((err) => {
+        dispatch(partyDislikedLocal(id));
         setLoadingLike(false);
       });
   };
@@ -69,18 +74,20 @@ const Party = ({route, navigation}) => {
   const m_dislikeParty = () => {
     if (loadingLike) return;
     setLoadingLike(true);
+    dispatch(partyDislikedLocal(id));
     dislikeParty(id)
       .then((res) => {
         dispatch(partyDislikedLocal(id));
         setLoadingLike(false);
       })
       .catch((err) => {
+        dispatch(partyLikedLocal(id));
         setLoadingLike(false);
       });
   };
 
   return (
-    <ScrollView style={{flex: 1}}>
+    <View style={{flex: 1}}>
       <View style={{backgroundColor: '#3f51b5', alignItems: 'center'}}>
         <Icon
           style={{
@@ -119,17 +126,20 @@ const Party = ({route, navigation}) => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-evenly',
-            width: '100%'
+            width: '100%',
           }}>
-          {details.liked ? (
+          {appData &&
+          appData.parties &&
+          appData.parties[id] &&
+          appData.parties[id].liked ? (
             <Button
               icon="thumb-up"
               mode="outline"
               compact
-              style={{backgroundColor: 'white', margin: 10}}
+              style={{backgroundColor: 'white', margin: 10, borderWidth: 1}}
               color="#3f51b5"
               onPress={() => m_dislikeParty()}>
-              {loadingLike ? 'Loading...' : 'Liked'}
+              {getCountAsText(details.likes)}
             </Button>
           ) : (
             <Button
@@ -139,13 +149,9 @@ const Party = ({route, navigation}) => {
               style={{margin: 10, borderColor: 'white', borderWidth: 1}}
               color="white"
               onPress={() => m_likeParty()}>
-              {loadingLike ? 'Loading...' : 'Like'}
+              {getCountAsText(details.likes)}
             </Button>
           )}
-
-          <Text style={{color: 'white'}}>
-            {getCountAsText(details.likes)} Likes
-          </Text>
         </View>
       </View>
       <TabView
@@ -164,7 +170,7 @@ const Party = ({route, navigation}) => {
         )}
         initialLayout={initialLayout}
       />
-    </ScrollView>
+    </View>
   );
 };
 export default Party;

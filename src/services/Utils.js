@@ -30,3 +30,35 @@ export const getTotalSeatsOfParty = (partyId) => {
     (_candidate) => _candidate.party === partyId,
   ).length;
 };
+
+export const getTimestampString = (timestamp) => {
+  var inputDate = new Date(timestamp);
+
+  if (
+    new Date(timestamp).setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)
+  ) {
+    return (
+      inputDate.getHours() +
+      ':' +
+      (inputDate.getMinutes() < 10
+        ? '0' + inputDate.getMinutes()
+        : inputDate.getMinutes())
+    );
+  }
+  var monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  return inputDate.getDate() + ' ' + monthNames[inputDate.getMonth()];
+};

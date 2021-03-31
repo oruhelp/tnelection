@@ -86,82 +86,111 @@ export const syncMasterData = (onChange) => {
     });
 };
 
-export const getHotNews = ( onChange) => {
-  return database().ref('/app/updates/hotnews')
-  .limitToLast(100)
-  .on('value', (snapshot) => {
+export const getHotNews = (onChange) => {
+  return database()
+    .ref('/app/updates/hotnews')
+    .limitToLast(100)
+    .on('value', (snapshot) => {
       let returnVal = snapshot.val();
 
-       returnVal = Object.keys(returnVal).map(
-          (key) => ({
-            ...returnVal[key],
-            id: key,
-          }),
-        );
+      returnVal = Object.keys(returnVal).map((key) => ({
+        ...returnVal[key],
+        id: key,
+      }));
 
-       onChange(returnVal);
-  });
-  
+      onChange(returnVal);
+    });
 };
 
-export const getAnnouncements = ( onChange) => {
-  return database().ref('/app/updates/announcements')
-  .limitToLast(100)
-  .on('value', (snapshot) => {
+export const getAnnouncements = (onChange) => {
+  return database()
+    .ref('/app/updates/announcements')
+    .limitToLast(100)
+    .on('value', (snapshot) => {
       let returnVal = snapshot.val();
 
-       returnVal = Object.keys(returnVal).map(
-          (key) => ({
-            ...returnVal[key],
-            id: key,
-          }),
-        );
+      returnVal = Object.keys(returnVal).map((key) => ({
+        ...returnVal[key],
+        id: key,
+      }));
 
-       onChange(returnVal);
-  });
-  
+      onChange(returnVal);
+    });
 };
 
 export const unsubscribeAnnouncements = () => {
   return database().ref('/app/updates/announcements').off('value');
-}
+};
 
 export const unsubscribeHotNews = () => {
   return database().ref('/app/updates/hotnews').off('value');
-}
+};
 
 export const likeParty = (partyId) => {
   return database()
-  .ref(`/app/masterData/parties/${partyId}/likes`)
-  .set(database.ServerValue.increment(1))
-}
+    .ref(`/app/masterData/parties/${partyId}/likes`)
+    .set(database.ServerValue.increment(1));
+};
 
 export const dislikeParty = (partyId) => {
   return database()
-  .ref(`/app/masterData/parties/${partyId}/likes`)
-  .set(database.ServerValue.increment(-1))
-}
+    .ref(`/app/masterData/parties/${partyId}/likes`)
+    .set(database.ServerValue.increment(-1));
+};
 
 export const likeCandidate = (candidateId) => {
   return database()
-  .ref(`/app/masterData/candidates/${candidateId}/likes`)
-  .set(database.ServerValue.increment(1))
-}
+    .ref(`/app/masterData/candidates/${candidateId}/likes`)
+    .set(database.ServerValue.increment(1));
+};
 
 export const dislikeCandidate = (candidateId) => {
   return database()
-  .ref(`/app/masterData/candidates/${candidateId}/likes`)
-  .set(database.ServerValue.increment(-1))
-}
+    .ref(`/app/masterData/candidates/${candidateId}/likes`)
+    .set(database.ServerValue.increment(-1));
+};
 
 export const likeConstituency = (constituencyId) => {
   return database()
-  .ref(`/app/masterData/constituencies/${constituencyId}/likes`)
-  .set(database.ServerValue.increment(1))
-}
+    .ref(`/app/masterData/constituencies/${constituencyId}/likes`)
+    .set(database.ServerValue.increment(1));
+};
 
 export const dislikeConstituency = (constituencyId) => {
   return database()
-  .ref(`/app/masterData/constituencies/${constituencyId}/likes`)
-  .set(database.ServerValue.increment(-1))
+    .ref(`/app/masterData/constituencies/${constituencyId}/likes`)
+    .set(database.ServerValue.increment(-1));
+};
+
+export const getComments = (id) => {
+  return database()
+    .ref(`/app/comments/${id}/comments`)
+    .orderByChild('date')
+    .limitToLast(30)
+    .once('value')
+    .then((snapshot) => {
+      return snapshot.val();
+    });
+};
+
+export const likeComment = (key, commentId) => {
+  return database()
+  .ref(`/app/comments/${key}/comments/${commentId}/likes`)
+  .set(database.ServerValue.increment(1));
 }
+
+export const dislikeComment = (key, commentId) => {
+  return database()
+  .ref(`/app/comments/${key}/comments/${commentId}/likes`)
+  .set(database.ServerValue.increment(-1));
+}
+
+export const addCommentToFire = (key, comment) => {
+  return database()
+    .ref(`/app/comments/${key}/comments`)
+    .push({...comment, date: database.ServerValue.TIMESTAMP});
+};
+
+export const deleteCommentFromFire = (key, commentId) => {
+  return database().ref(`/app/comments/${key}/comments/${commentId}`).remove();
+};

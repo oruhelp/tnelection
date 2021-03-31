@@ -6,7 +6,7 @@ import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
 import {useSelector, useDispatch} from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import About from './About';
-import Comments from '../../components/Comments';
+import Comments from '../party/Comments';
 
 import {getCountAsText} from '../../services/Utils';
 import {likeCandidate, dislikeCandidate} from '../../services/database';
@@ -19,6 +19,7 @@ const Candidate = ({route, navigation}) => {
   const {id} = route?.params;
   const dispatch = useDispatch();
   const masterData = useSelector((state) => state.masterData);
+  const appData = useSelector((state) => state.appData);
   const authUser = useSelector((state) => state.authUser);
   const details = masterData.candidates.filter(
     (_candidate) => _candidate.id === id,
@@ -28,6 +29,7 @@ const Candidate = ({route, navigation}) => {
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {key: 'about', icon: 'information-outline'},
+    {key: 'comments', icon: 'comment'},
   ]);
 
   const renderScene = ({route}) => {
@@ -37,7 +39,7 @@ const Candidate = ({route, navigation}) => {
       case 'candidates':
         return <Candidates {...details} />;
       case 'comments':
-        return <Comments />;
+        return <Comments id={id} />;
       default:
         return null;
     }
@@ -57,12 +59,14 @@ const Candidate = ({route, navigation}) => {
     }
     if (loadingLike) return;
     setLoadingLike(true);
+    dispatch(candidateLikedLocal(id));
     likeCandidate(id)
       .then((res) => {
         dispatch(candidateLikedLocal(id));
         setLoadingLike(false);
       })
       .catch((err) => {
+        dispatch(candidateDislikedLocal(id));
         setLoadingLike(false);
       });
   };
@@ -70,12 +74,14 @@ const Candidate = ({route, navigation}) => {
   const m_dislikeCandidate = () => {
     if (loadingLike) return;
     setLoadingLike(true);
+    dispatch(candidateDislikedLocal(id));
     dislikeCandidate(id)
       .then((res) => {
         dispatch(candidateDislikedLocal(id));
         setLoadingLike(false);
       })
       .catch((err) => {
+        dispatch(candidateLikedLocal(id));
         setLoadingLike(false);
       });
   };
@@ -120,17 +126,20 @@ const Candidate = ({route, navigation}) => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-evenly',
-            width: '100%'
+            width: '100%',
           }}>
-          {details.liked ? (
+          {appData &&
+          appData.candidates &&
+          appData.candidates[id] &&
+          appData.candidates[id].liked ? (
             <Button
               icon="thumb-up"
               mode="outline"
               compact
-              style={{backgroundColor: 'white', margin: 10}}
+              style={{backgroundColor: 'white', margin: 10, borderWidth: 1}}
               color="#3f51b5"
               onPress={() => m_dislikeCandidate()}>
-              {loadingLike ? 'Loading...' : 'Liked'}
+              {getCountAsText(details.likes)}
             </Button>
           ) : (
             <Button
@@ -140,13 +149,9 @@ const Candidate = ({route, navigation}) => {
               style={{margin: 10, borderColor: 'white', borderWidth: 1}}
               color="white"
               onPress={() => m_likeCandidate()}>
-              {loadingLike ? 'Loading...' : 'Like'}
+              {getCountAsText(details.likes)}
             </Button>
           )}
-
-          <Text style={{color: 'white'}}>
-            {getCountAsText(details.likes)} Likes
-          </Text>
         </View>
       </View>
       <TabView

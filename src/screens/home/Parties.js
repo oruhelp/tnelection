@@ -11,6 +11,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import ListItem from '../../components/ListItem';
+import {getCountAsText} from '../../services/Utils';
 
 export default function () {
   const navigation = useNavigation();
@@ -37,7 +38,7 @@ export default function () {
       </View>
       <SafeAreaView style={{flex: 1}}>
         <ScrollView>
-          <Headline style={{alignSelf: 'center', marginTop: 30}}>
+          <Headline style={{alignSelf: 'center', marginTop: 10}}>
             Parties/Alliance
           </Headline>
 
@@ -108,7 +109,7 @@ export default function () {
             );
           })}
 
-          <Headline style={{alignSelf: 'center', marginTop: 100}}>
+          <Headline style={{alignSelf: 'center', marginTop: 10}}>
             All Parties
           </Headline>
           <View>
@@ -116,27 +117,33 @@ export default function () {
               data={masterData.parties.sort((a, b) =>
                 a.name < b.name ? -1 : a.name > b.name ? 1 : 0,
               )}
-              renderItem={({item}) => (
-                <ListItem
-                  key={item.id}
-                  title={item.name}
-                  image={item.symbol}
-                  seats={item.seats}
-                  chips={
-                    item &&
-                    item.chips &&
-                    Object.keys(item.chips).map((key) => ({
-                      ...item.chips[key],
-                    }))
-                  }
-                  liveScore={item.liveScore}
-                  onPress={() =>
-                    navigation.navigate('Party', {
-                      id: item.id,
-                    })
-                  }
-                />
-              )}
+              renderItem={({item}) => {
+                const likes = item.likes && {
+                  title: getCountAsText(item.likes),
+                  icon: 'thumb-up',
+                };
+                const oldChips =
+                  item && item.chips
+                    ? Object.keys(item.chips).map((key) => ({
+                        ...item.chips[key],
+                      }))
+                    : [];
+                return (
+                  <ListItem
+                    key={item.id}
+                    title={item.name}
+                    image={item.symbol}
+                    seats={item.seats}
+                    chips={[{...likes}, ...oldChips]}
+                    liveScore={item.liveScore}
+                    onPress={() =>
+                      navigation.navigate('Party', {
+                        id: item.id,
+                      })
+                    }
+                  />
+                );
+              }}
               keyExtractor={(item) => item.id}
             />
           </View>
